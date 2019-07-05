@@ -1,0 +1,6 @@
+name "pathtracer"
+description "dlang pathtracer"
+authors "sammoth"
+copyright "Copyright © 2019, sammoth"
+license "MIT"
+dependency "derelict-sdl2" version="~>2.1.4"

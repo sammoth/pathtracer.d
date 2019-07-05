@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/pathtracer
+pathtracer.so
+pathtracer.dylib
+pathtracer.dll
+pathtracer.a
+pathtracer.lib
+pathtracer-test-*
+*.exe
+*.o
+*.obj
+*.lst

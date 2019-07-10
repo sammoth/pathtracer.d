@@ -5,7 +5,7 @@ import std.concurrency;
 import derelict.sdl2.sdl;
 import renderer;
 
-const int RENDER_THREADS = 4;
+const int RENDER_THREADS = 8;
 const int SCREEN_WIDTH = 2000;
 const int SCREEN_HEIGHT = 1000;
 
@@ -101,6 +101,7 @@ void main()
   }
 
   bool running = true;
+  int completed_threads = 0;
   SDL_Event event;
 
   while (running)
@@ -111,7 +112,7 @@ void main()
       	     (SDL_KEYDOWN == event.type && SDL_SCANCODE_Q == event.key.keysym.scancode))
             {
       	      running = false;
-	      for (int i = 0; i < RENDER_THREADS; i++) {
+	      for (int i = 0; i < (RENDER_THREADS - completed_threads); i++) {
 		send(tids[i], true);
 		receiveOnly!(bool);
 	      }
@@ -119,10 +120,26 @@ void main()
             }
         }
 
+      if (receiveTimeout(-1.msecs, (bool){}))
+	completed_threads++;
+
       SDL_UpdateTexture(texture, null, cast(void*)pixels, cast(int)(SCREEN_WIDTH*uint.sizeof));
       SDL_RenderClear(sdl_renderer);
       SDL_RenderCopy(sdl_renderer, texture, null, null);
       SDL_RenderPresent(sdl_renderer);
+
+      if (completed_threads == RENDER_THREADS)
+	{
+	  while(SDL_WaitEvent(&event))
+	    {
+	      if((SDL_QUIT == event.type) ||
+		 (SDL_KEYDOWN == event.type && SDL_SCANCODE_Q == event.key.keysym.scancode))
+		{
+		  running = false;
+		  break;
+		}
+	    }
+	}
     }
 
   close();

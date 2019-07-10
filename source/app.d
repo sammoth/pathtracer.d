@@ -67,19 +67,25 @@ void render_thread(Tid tid)
   int max_row = (thread_index+1)*(SCREEN_HEIGHT/RENDER_THREADS);
   if (thread_index == RENDER_THREADS-1) { max_row = SCREEN_HEIGHT; }
 
+  renderer.hitable[2] world_objects;
+  world_objects[0] = new renderer.sphere(vec3(0, 0, -1), 0.5);
+  world_objects[1] = new renderer.sphere(vec3(1, -1, -3), 2);
+  renderer.hitable world = new renderer.hitable_list(world_objects);
+
   for (int y = min_row; y < max_row; y++)
     for (int x = 0; x < SCREEN_WIDTH; x++)
       {
 	{
 	  if (x % 5 == 0 && receiveTimeout(-1.msecs, (bool){}))
 	    {
+	      // this is bad... there is a race condition if the thread is already finished
 	      send(tid, true);
 	      return;
 	    }
 
 	  float unit_x = 1.0 * x / SCREEN_WIDTH;
 	  float unit_y = 1.0 * y / SCREEN_HEIGHT;
-	  renderer.colour_pixel(&(*pixels)[y * SCREEN_WIDTH + x], unit_x, unit_y);
+	  renderer.colour_pixel(&(*pixels)[y * SCREEN_WIDTH + x], unit_x, unit_y, world);
 	}
       }
 

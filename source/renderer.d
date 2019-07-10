@@ -161,19 +161,14 @@ vec3 color(ray r, hitable world)
   }
 }
 
-public void colour_pixel(shared(uint)* pixel, float u, float v)
+vec3 lower_left_corner = vec3(-2.0, -1.0, -1.0);
+vec3 horizontal = vec3(4.0, 0.0, 0.0);
+vec3 vertical = vec3(0.0, 2.0, 0.0);
+vec3 origin = vec3(0.0, 0.0, 0.0);
+
+public void colour_pixel(shared(uint)* pixel, float u, float v, hitable world)
 {
-  vec3 lower_left_corner = vec3(-2.0, -1.0, -1.0);
-  vec3 horizontal = vec3(4.0, 0.0, 0.0);
-  vec3 vertical = vec3(0.0, 2.0, 0.0);
-  vec3 origin = vec3(0.0, 0.0, 0.0);
-
   ray r = ray(origin, lower_left_corner + u*horizontal + v*vertical);
-  hitable[2] world_objects;
-  world_objects[0] = new sphere(vec3(0, 0, -1), 0.5);
-  world_objects[1] = new sphere(vec3(0, -100.5, -1), 100);
-  hitable world = new hitable_list(world_objects);
-
   vec3 col = color(r, world);
 
   *pixel = (to!uint(col.r * 0xff) << 16) + (to!uint(col.g * 0xff) << 8) + to!uint(col.b * 0xff);
